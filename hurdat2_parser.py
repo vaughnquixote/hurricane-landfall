@@ -61,21 +61,27 @@ def parse_hurdat2_file(filename):
             else:
                 irregular_data.append(row)
     
-    return hurricanes
+    return hurricanes, irregular_data
+
+def get_polygon_from_geojson(geojson_file):
+    
+    with open(geojson_file) as file:
+        state_borders = json.load(file)
+        for feat in state_borders["features"]:
+            if feat["properties"]["NAME"] == "Florida":
+                florida_polygon = from_geojson(json.dumps(feat))
+    
+    return florida_polygon
 
 def parse_file():
     hurricanes = []
-    irregular_data = []
     
-    hurricanes = parse_hurdat2_file('./resources/hurdat2-1851-2021.txt')
+    hurricanes, _ = parse_hurdat2_file('./resources/hurdat2-1851-2021.txt')
 
     print(f"processed {len(hurricanes)} hurricanes")
 
-    with open('./resources/gz_2010_us_040_00_500k.json') as f:
-        state_borders = json.load(f)
-        for feat in state_borders["features"]:
-            if feat["properties"]["NAME"] == "Florida":
-                florida = from_geojson(json.dumps(feat))
+    florida = get_polygon_from_geojson('./resources/gz_2010_us_040_00_500k.json')
+    
 
     
     num_correct = 0
