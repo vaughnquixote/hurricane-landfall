@@ -3,12 +3,6 @@ import json
 from shapely import Point
 from shapely import from_geojson
 
-class GeoCoordinate:
-
-    def __init__(self, latitude, longitude):
-        self.latitude = latitude
-        self.longitude = longitude
-
 class Hurricane:
 
     def __init__(self, name, basin, cyclone_num, year):
@@ -20,7 +14,7 @@ class Hurricane:
         self.landfall = False
 
     def add_location(self, latitude, longitude):
-        new_loc = GeoCoordinate(latitude, longitude)
+        new_loc = Point(longitude, latitude)
         self.locations.append(new_loc)
 
     def add_landfall_indicator(self):
@@ -87,20 +81,21 @@ def parse_file():
     for hurr in hurricanes:
         has_landfall = False
         for loc in hurr.locations:
-            p1 = Point(loc.longitude, loc.latitude)
-            if florida.contains(p1):
+            if florida.contains(loc):
+                lat = loc.y
+                lon = loc.x
                 has_landfall = True
+                break
         
-        print(hurr.name, hurr.year)
-        print(f"indicator {hurr.landfall}")
-        print(f"predicted {has_landfall}")
-
         if has_landfall and hurr.landfall:
             num_correct += 1
         elif not (has_landfall or hurr.landfall):
             num_correct += 1
         else:
             num_incorrect += 1
+            if has_landfall and not hurr.landfall:
+                print(hurr.name, hurr.year, hurr.cyclone_num)
+                print(lat, lon)
     
     print(f"correct {num_correct}")
     print(f"incorrect {num_incorrect}")
