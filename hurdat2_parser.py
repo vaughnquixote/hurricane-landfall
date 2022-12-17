@@ -17,9 +17,6 @@ class Hurricane:
         new_loc = Point(longitude, latitude)
         self.locations.append(new_loc)
 
-    def add_landfall_indicator(self):
-        self.landfall = True
-
 def parse_header(row):
     basin = row[0][:2]
     cyclone_num = row[0][2:4]
@@ -42,32 +39,37 @@ def parse_data_row(row):
     lat = parse_coord_string(lat)
     lon = parse_coord_string(lon)
     return indicator, lat, lon
-
-def parse_file():
+    
+def parse_hurdat2_file(filename):
+    
     hurricanes = []
     irregular_data = []
 
-    with open('./resources/hurdat2-1851-2021.txt') as hurdat:
-        reader = csv.reader(hurdat)
+    with open(filename) as hurdat_file:
+        reader = csv.reader(hurdat_file)
         current_hurricane = None
-        num_hurricanes = 0
-        num_landfall = 0
+
         for row in reader:
             if len(row) == 4:
-                num_hurricanes += 1
                 current_hurricane = parse_header(row)
                 hurricanes.append(current_hurricane)
             elif len(row) == 21:
                 indicator, lat, lon = parse_data_row(row)
                 current_hurricane.add_location(lat, lon)
                 if indicator == "L":
-                    num_landfall += 1
-                    current_hurricane.add_landfall_indicator()
+                    current_hurricane.landfall = True
             else:
                 irregular_data.append(row)
     
-    print(f"processed {num_hurricanes} hurricanes")
-    print(f"num with lanfall {num_landfall}")
+    return hurricanes
+
+def parse_file():
+    hurricanes = []
+    irregular_data = []
+    
+    hurricanes = parse_hurdat2_file('./resources/hurdat2-1851-2021.txt')
+
+    print(f"processed {len(hurricanes)} hurricanes")
 
     with open('./resources/gz_2010_us_040_00_500k.json') as f:
         state_borders = json.load(f)
