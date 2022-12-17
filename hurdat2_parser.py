@@ -85,8 +85,6 @@ def identify_landfall_in_polygon(hurricane_list, polygon):
         has_landfall = False
         for loc in hurr.locations:
             if polygon.contains(loc):
-                lat = loc.y
-                lon = loc.x
                 has_landfall = True
                 break
 
