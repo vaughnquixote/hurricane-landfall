@@ -1,5 +1,6 @@
 import csv
 import json
+import sys
 from shapely import Point
 from shapely import from_geojson
 
@@ -73,43 +74,57 @@ def get_polygon_from_geojson(geojson_file):
     
     return florida_polygon
 
-def parse_file():
-    hurricanes = []
-    
-    hurricanes, _ = parse_hurdat2_file('./resources/hurdat2-1851-2021.txt')
+def identify_landfall_in_polygon(hurricane_list, polygon):
+    num_landfall_verified = 0
+    num_landfall_fl = 0
+    no_landfall = 0
+    landfall_indicator_and_not_identified = 0
+    no_ind_ided = 0
 
-    print(f"processed {len(hurricanes)} hurricanes")
-
-    florida = get_polygon_from_geojson('./resources/gz_2010_us_040_00_500k.json')
-    
-
-    
-    num_correct = 0
-    num_incorrect = 0
-    for hurr in hurricanes:
+    for hurr in hurricane_list:
         has_landfall = False
         for loc in hurr.locations:
-            if florida.contains(loc):
+            if polygon.contains(loc):
                 lat = loc.y
                 lon = loc.x
                 has_landfall = True
                 break
-        
+
+        if has_landfall:
+            num_landfall_fl += 1
+        if not (has_landfall or hurr.landfall):
+            no_landfall += 1
         if has_landfall and hurr.landfall:
-            num_correct += 1
-        elif not (has_landfall or hurr.landfall):
-            num_correct += 1
-        else:
-            num_incorrect += 1
-            if has_landfall and not hurr.landfall:
-                print(hurr.name, hurr.year, hurr.cyclone_num)
-                print(lat, lon)
+            num_landfall_verified += 1
+        if not has_landfall and hurr.landfall:
+            landfall_indicator_and_not_identified += 1
+        if has_landfall and not hurr.landfall:
+            no_ind_ided += 1
     
-    print(f"correct {num_correct}")
-    print(f"incorrect {num_incorrect}")
+    return num_landfall_fl, no_landfall, num_landfall_verified, landfall_indicator_and_not_identified, no_ind_ided
+
+def process_hurricane_data(hurdat2_file, geojson_file):
+    hurricanes = []
+    
+    hurricanes, _ = parse_hurdat2_file(hurdat2_file)
+
+    print(f"processed {len(hurricanes)} hurricanes")
+
+    florida = get_polygon_from_geojson(geojson_file)
+
+    num_landfall, no_landfall, verified, missed, potential_bad_data = identify_landfall_in_polygon(hurricanes, florida)
+    
+    print(f"identified landfall in florida: {num_landfall}")
+    print(f"verified landfall: {verified}")
+    print(f"verified no landfall: {no_landfall}")
+    print(f"missed landfall: {missed}")
+    print(f"identified and no indicator: {potential_bad_data}")
+    print(f"total categorized: {verified + no_landfall + missed + potential_bad_data}")
 
 def main():
-    parse_file()
+    hurdat2_file = sys.argv[1]
+    geojson_file = sys.argv[2]
+    process_hurricane_data(hurdat2_file, geojson_file)
 
 if __name__ == "__main__":
     main()
