@@ -2,7 +2,7 @@ import csv
 import sys
 
 from hurdat2_parsing import parse_hurdat2_file
-from geography_parsing import get_polygon_from_geojson
+from geography_parsing import get_polygon_from_geojson, get_polygon_from_shapefile
 
 
 def generate_csv_report(cyclones, polygon):
@@ -15,7 +15,6 @@ def generate_csv_report(cyclones, polygon):
                     date = f"{obs.datetime.month}/{obs.datetime.day}/{obs.datetime.year}"
                     reportwriter.writerow([cyc.name, date, cyc.get_max_wind_speed()])
                     break
-
 
 def identify_landfall_in_polygon(cyclone_list, polygon):
     num_landfall_verified = 0

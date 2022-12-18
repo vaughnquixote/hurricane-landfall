@@ -1,3 +1,6 @@
+# mac OS files
+.DS_Store
+
 # project notes/status
 notes
 KCC_SWDev_TechnicalInterview.pdf
