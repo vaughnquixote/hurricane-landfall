@@ -22,6 +22,13 @@ class Cyclone:
     def add_observation(self, observation_data):
         self.observations.append(observation_data)
 
+    def get_max_wind_speed(self):
+        max_wind_speed = 0
+        for obs in self.observations:
+            if obs.max_wind > max_wind_speed:
+                max_wind_speed = obs.max_wind
+        return max_wind_speed
+
     def add_location(self, latitude, longitude):
         new_loc = Point(longitude, latitude)
         self.locations.append(new_loc)
@@ -60,23 +67,22 @@ def transform_data_row_to_cod(row):
     cyclone_datetime = datetime(year, month, day, hours, minutes)
 
     indicator = row[2].strip()
+
     lat_str = row[4].strip()
     lon_str = row[5].strip()
     lat_parsed = parse_coord_string(lat_str)
     lon_parsed = parse_coord_string(lon_str)
     loc = Point(lon_parsed, lat_parsed)
 
-    max_wind_speed = row[6].strip()
+    max_wind_speed = int(row[6].strip())
     return CycloneObservationData(loc, cyclone_datetime, indicator, max_wind_speed)
     
 def parse_hurdat2_file(filename):
     
     cyclones = []
-    irregular_data = []
 
     with open(filename) as hurdat_file:
         reader = csv.reader(hurdat_file)
-        curr_cyclone = None
 
         for row in reader:
             if len(row) == 4:
@@ -99,6 +105,18 @@ def get_polygon_from_geojson(geojson_file):
                 florida_polygon = from_geojson(json.dumps(feat))
     
     return florida_polygon
+
+def generate_csv_report(cyclones, polygon):
+    with open('fl_landfall_report.csv', 'w') as reportfile:
+        reportwriter = csv.writer(reportfile)
+        reportwriter.writerow(['name', 'date', 'max_wind_speed'])
+        for cyc in cyclones:
+            for obs in cyc.observations:
+                if polygon.contains(obs.location):
+                    date = f"{obs.datetime.month}/{obs.datetime.day}/{obs.datetime.year}"
+                    reportwriter.writerow([cyc.name, date, cyc.get_max_wind_speed()])
+                    break
+
 
 def identify_landfall_in_polygon(cyclone_list, polygon):
     num_landfall_verified = 0
@@ -138,6 +156,8 @@ def process_cyclone_data(hurdat2_file, geojson_file):
 
     num_landfall, no_landfall, verified, missed, potential_bad_data = identify_landfall_in_polygon(cyclones, florida)
     
+    generate_csv_report(cyclones, florida)
+
     print(f"identified landfall in florida: {num_landfall}")
     print(f"verified landfall: {verified}")
     print(f"verified no landfall: {no_landfall}")
