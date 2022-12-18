@@ -71,24 +71,24 @@ def transform_data_row_to_cod(row):
     
 def parse_hurdat2_file(filename):
     
-    hurricanes = []
+    cyclones = []
     irregular_data = []
 
     with open(filename) as hurdat_file:
         reader = csv.reader(hurdat_file)
-        current_hurricane = None
+        curr_cyclone = None
 
         for row in reader:
             if len(row) == 4:
-                current_hurricane = transform_header_to_cyclone(row)
-                hurricanes.append(current_hurricane)
+                curr_cyclone = transform_header_to_cyclone(row)
+                cyclones.append(curr_cyclone)
             elif len(row) == 21:
                 cyc_observation = transform_data_row_to_cod(row)
-                current_hurricane.add_observation(cyc_observation)
+                curr_cyclone.add_observation(cyc_observation)
                 if cyc_observation.record_identifier == "L":
-                    current_hurricane.landfall = True
+                    curr_cyclone.landfall = True
     
-    return hurricanes
+    return cyclones
 
 def get_polygon_from_geojson(geojson_file):
     
