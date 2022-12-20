@@ -74,33 +74,43 @@ def transform_data_row_to_cod(row):
     year = int(row[0][:4])
     month = int(row[0][4:6])
     day = int(row[0][6:])
-
+    
+    # first extract time then create datetime object
     time = row[1].strip()
     hours = int(time[:2])
     minutes = int(time[2:])
     cyclone_datetime = datetime(year, month, day, hours, minutes)
-
-    indicator = row[2].strip()
-
+    
+    # get record identifier (used to validate landfall identification)
+    record_identifier = row[2].strip()
+    
+    # get the latitude and longitude in a numerical representation and 
+    # construct a shapely point 
     lat_str = row[4].strip()
     lon_str = row[5].strip()
     lat_parsed = parse_coord_string(lat_str)
     lon_parsed = parse_coord_string(lon_str)
     loc = Point(lon_parsed, lat_parsed)
-
+    
+    # get the max wind speed and convert to numerical representation
     max_wind_speed = int(row[6].strip())
-    return CycloneObservationData(loc, cyclone_datetime, indicator, max_wind_speed)
+    return CycloneObservationData(loc, cyclone_datetime, record_identifier, max_wind_speed)
     
 def parse_hurdat2_file(filename):
     """
-    
+    Open the provided HURDAT2 file, parse it and return a list of
+    Cyclone objects. 
+
+    Params:
+    filename (str): filename/path
+
+    Returns:
+    cyclones (lis[Cyclone]): list of cyclones extracted from the file
     """
-    
     cyclones = []
 
     with open(filename) as hurdat_file:
         reader = csv.reader(hurdat_file)
-
         for row in reader:
             if len(row) == 4:
                 curr_cyclone = transform_header_to_cyclone(row)
@@ -110,5 +120,4 @@ def parse_hurdat2_file(filename):
                 curr_cyclone.add_observation(cyc_observation)
                 if cyc_observation.record_identifier == "L":
                     curr_cyclone.landfall = True
-    
     return cyclones

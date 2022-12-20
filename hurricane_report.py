@@ -1,5 +1,6 @@
 import csv
 import sys
+import os
 
 from hurdat2_parsing import parse_hurdat2_file
 from geography_parsing import get_polygon_from_geojson
@@ -18,8 +19,8 @@ def format_datetime(datetime):
     formatted_date = f"{datetime.month}/{datetime.day}/{datetime.year}"
     return formatted_date
 
-
-def generate_csv_report(cyclones, polygon, filename="landfall_report.csv"):
+def generate_csv_report(cyclones, polygon, \
+    output_filename="landfall_report.csv"):
     """
     Generate and save a CSV report file indicating the name, date and maximum 
     wind speed for each hurricane from the provided data which made landfall 
@@ -35,7 +36,7 @@ def generate_csv_report(cyclones, polygon, filename="landfall_report.csv"):
     None
     """
 
-    with open(filename, "w") as reportfile:
+    with open(output_filename, "w") as reportfile:
         reportwriter = csv.writer(reportfile)
         reportwriter.writerow(["name", "date", "max_wind_speed"])
         # check each cyclone in the provided data
@@ -81,7 +82,7 @@ def identify_landfall_in_polygon(cyclone_list, polygon):
     
     return num_landfall_fl, no_landfall, num_landfall_verified, landfall_indicator_and_not_identified, no_ind_ided
 
-def process_cyclone_data(hurdat2_file, geojson_file):
+def process_cyclone_data(hurdat2_file, geojson_file, output_dir="./"):
     """
     Accepts a hurdat2 filename and a geojson filename, parses the files and 
     then generates a csv report based on the data.
@@ -101,7 +102,8 @@ def process_cyclone_data(hurdat2_file, geojson_file):
 
         florida = get_polygon_from_geojson(geojson_file)
     
-        generate_csv_report(cyclones, florida)
+        generate_csv_report(cyclones, florida, \
+            output_filename=os.path.join(output_dir, "landfall_report.csv"))
     except:
         return False
     return True
