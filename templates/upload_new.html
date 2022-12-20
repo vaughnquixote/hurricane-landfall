@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form action = "{{ url_for('upload') }}" method = "POST" enctype = "multipart/form-data" style="margin: 100px;">
+        <div class="form-group">
+            <div class="mb-3">
+                <label for="hurdat2File" class="form-label">HURDAT2 File:</label>
+                <input type="file" class="form-control" name="hurdat2" id="hurdat2File" placeholder="Upload HURDAT2 File">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="geojsonFile" class="form-label">GeoJSON File:</label>
+            <input type="file" class="form-control" name="geojson" id="geojsonFile" placeholder="Upload GeoJSON File">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="margin: 80px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Date of Landfall</th>
+                        <th scope="col">Maximum Wind Speed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+</div>
+{% endblock %}
