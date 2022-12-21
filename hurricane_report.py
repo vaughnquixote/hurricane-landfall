@@ -82,7 +82,7 @@ def identify_landfall_in_polygon(cyclone_list, polygon):
     
     return num_landfall_fl, no_landfall, num_landfall_verified, landfall_indicator_and_not_identified, no_ind_ided
 
-def process_cyclone_data(hurdat2_file, geojson_file, output_dir="./"):
+def process_cyclone_data(hurdat2_file, geojson_file, output_dir=""):
     """
     Accepts a hurdat2 filename and a geojson filename, parses the files and 
     then generates a csv report based on the data.
@@ -95,6 +95,9 @@ def process_cyclone_data(hurdat2_file, geojson_file, output_dir="./"):
     geojson_file (str): filename/path for a file in geojson format inteded to
         represent a state boundary
     """
+    if output_dir == "":
+        output_dir = os.getcwd()
+        
     try:
         cyclones = []
     
