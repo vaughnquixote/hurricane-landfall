@@ -22,6 +22,7 @@ An application to parse HURDAT2 dataset, identify storms which made landfall in 
 - `hurdat2_parsing.py`: parse HURDAT2 formatted csv files
 - `hurricane_app.py`: Flask application 
 - `hurricane_report.py`: code to orchestrate processing of the data and generate the report csv
+- `hurricane_test.py`: unit tests
 - `requirements.txt`: python requirements file for building virtual envs
 
 ## Running the Application
@@ -45,3 +46,7 @@ flask --app hurricane_app run
 ```
 
 This will serve a web app at `localhost:5000` where you can access the UI. 
+
+## Methodology
+
+In order to generate the report the app relies on the Shapely library (https://shapely.readthedocs.io/en/stable/index.html). The location of each cyclone observation, understood to be geographic coordinates of the center of the storm, is read into a Shapely Point object. The state boundaries for Florida (see above notes in project structure for sources) were then read into a Shapely MultiPolygon. Then to check whether or not the storm made landfall, the app tests if the location Point is within the state MultiPolygon.
