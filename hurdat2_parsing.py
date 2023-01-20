@@ -96,7 +96,7 @@ def transform_data_row_to_cod(row):
     max_wind_speed = int(row[6].strip())
     return CycloneObservationData(loc, cyclone_datetime, record_identifier, max_wind_speed)
     
-def parse_hurdat2_file(filename):
+def parse_hurdat2_file(filename, start_year=1900):
     """
     Open the provided HURDAT2 file, parse it and return a list of
     Cyclone objects. 
@@ -114,7 +114,8 @@ def parse_hurdat2_file(filename):
         for row in reader:
             if len(row) == 4:
                 curr_cyclone = transform_header_to_cyclone(row)
-                cyclones.append(curr_cyclone)
+                if int(curr_cyclone.year) >= 1900:
+                    cyclones.append(curr_cyclone)
             elif len(row) == 21:
                 cyc_observation = transform_data_row_to_cod(row)
                 curr_cyclone.add_observation(cyc_observation)
