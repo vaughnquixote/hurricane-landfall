@@ -107,7 +107,9 @@ def process_cyclone_data(hurdat2_file, geojson_file, output_dir=""):
     
         generate_csv_report(cyclones, florida, \
             output_filename=os.path.join(output_dir, "landfall_report.csv"))
-    except:
+    except Exception as e:
+        print("Processing failed with message:")
+        print(str(e))
         return False
     return True
 
