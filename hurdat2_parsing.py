@@ -114,7 +114,7 @@ def parse_hurdat2_file(filename, start_year=1900):
         for row in reader:
             if len(row) == 4:
                 curr_cyclone = transform_header_to_cyclone(row)
-                if int(curr_cyclone.year) >= 1900:
+                if int(curr_cyclone.year) >= start_year:
                     cyclones.append(curr_cyclone)
             elif len(row) == 21:
                 cyc_observation = transform_data_row_to_cod(row)
